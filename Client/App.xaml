@@ -1,0 +1,112 @@
+<Application x:Class="Client.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:Client" StartupUri="MainWindow.xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" d1p1:Ignorable="d" xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:converters="clr-namespace:Client.Converters" xmlns:extensions="clr-namespace:Client.Ext"  xmlns:selectors="clr-namespace:Client.Selectors" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+
+                <ResourceDictionary Source="StyleDictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True" xmlns:vm="clr-namespace:Client.ViewModel" />
+
+            <converters:UserStatusColorConverter x:Key="colorConvert"/>
+            <converters:PrivateChatAlignmentConvertor x:Key="alignConvert"/>
+            <converters:UnreadMsgConverter x:Key="unreadMsgConvert"/>
+ 
+
+            <DataTemplate x:Key="UsersDT">
+                <Grid Width="500">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource TextBlockListView}" HorizontalAlignment="Left" Grid.Column="0" Text="{Binding Name}"></TextBlock>
+                    <TextBlock Style="{StaticResource TextBlockListView}" HorizontalAlignment="Center" Foreground="{Binding PlayerStatus, Converter={StaticResource colorConvert}}" Grid.Column="1" Text="{Binding PlayerStatus}"></TextBlock>
+                    <TextBlock Style="{StaticResource TextBlockListView}" HorizontalAlignment="Right">
+                        <Run Text="Wins: "/>
+                        <Run Text="{Binding Wins}"/>
+                    </TextBlock>
+                </Grid>
+            </DataTemplate>
+
+            <DataTemplate x:Key="TabHeaderLobbyDT">
+                <TextBlock Text="{Binding UserNameTab}" FontSize="30" Foreground="DarkRed"/>
+            </DataTemplate>
+
+            <DataTemplate x:Key="TabHeaderUserDT">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="25" Foreground="DarkGreen">
+                        <Run Text="{Binding UserNameTab, Mode=OneWay}"/>
+                        <Run Text="{Binding UnreadMessages, Converter={StaticResource unreadMsgConvert}}"/>
+                    </TextBlock>
+                    <Image Width="30" Stretch="Fill" Source="Assets/CloseButton.png">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                <i:InvokeCommandAction Command="{Binding LobbyVM.CloseTab, Source={StaticResource Locator}}" CommandParameter="{Binding UserNameTab}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                </StackPanel>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ChatDT">
+                <Border Style="{StaticResource ChatTextBorder}" MaxWidth="1200"  HorizontalAlignment="{Binding Converter={StaticResource alignConvert}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Style="{StaticResource ChatTimeTextBlock}" Text="{Binding Time}"/>
+                        <TextBlock Grid.Column="1" Style="{StaticResource TextBlockListView}" Text="{Binding Text}" Foreground="{Binding Color}"/>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ChatDT2">
+                <Border Style="{StaticResource ChatTextBorder}" MaxWidth="400"  HorizontalAlignment="{Binding Converter={StaticResource alignConvert}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Style="{StaticResource ChatTimeTextBlock}" Text="{Binding Time}"/>
+                        <TextBlock Grid.Column="1" Style="{StaticResource TextBlockListView}" Text="{Binding Text}" Foreground="{Binding Color}"/>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ChatTabDT">
+                <ListBox Style="{StaticResource ChatListBox}" ItemTemplate="{StaticResource ChatDT}" ItemsSource="{Binding Chat}" extensions:ListBoxBehavior.ScrollOnNewItem="True"/>
+            </DataTemplate>
+
+
+            <selectors:TabHeaderSelector x:Key="tabHeaderSelector"
+                                          LobbyHeaderTemplate="{StaticResource TabHeaderLobbyDT}"
+                                          UserHeaderTemplate="{StaticResource TabHeaderUserDT}"/>
+
+            <ContextMenu x:Key="ListContextMenu">
+                <MenuItem Command="{Binding OpenChatTab}">
+                    <MenuItem.Header>
+                        <DockPanel Width="250" Height="60">
+                            <Image HorizontalAlignment="Left" Width="50" Height="50" Source="/Assets/menuChatIcon.png"/>
+                            <TextBlock Style="{StaticResource MenuItemText}" Text="Private Chat"/>
+                        </DockPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem Command="{Binding SendGameRequest}">
+                    <MenuItem.Header>
+                        <DockPanel Width="250" Height="60">
+                            <Image HorizontalAlignment="Left" Width="50" Height="50" Source="/Assets/menuGameIcon.png"/>
+                            <TextBlock Style="{StaticResource MenuItemText}" Text="Invite to Game"/>
+                        </DockPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+            </ContextMenu>
+
+            <ItemsPanelTemplate x:Key="bottomToUp">
+                <VirtualizingStackPanel VerticalAlignment="Bottom"/>
+            </ItemsPanelTemplate>
+
+
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
